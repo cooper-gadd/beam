@@ -1,14 +1,3 @@
-import * as React from "react";
-import {
-  ChevronRight,
-  Database,
-  Table,
-  Columns,
-  PlugZap,
-  Unplug,
-  Cloud,
-} from "lucide-react";
-
 import {
   Collapsible,
   CollapsibleContent,
@@ -27,8 +16,17 @@ import {
   SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import {
+  ChevronRight,
+  Cloud,
+  Columns,
+  Database,
+  PlugZap,
+  Table,
+  Unplug,
+} from "lucide-react";
+import * as React from "react";
 
-// This is sample data.
 const data = {
   connections: [
     {
