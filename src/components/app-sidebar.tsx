@@ -1,11 +1,19 @@
-import * as React from "react"
-import { ChevronRight, File, Folder } from "lucide-react"
+import * as React from "react";
+import {
+  ChevronRight,
+  Database,
+  Table,
+  Columns,
+  PlugZap,
+  Unplug,
+  Cloud,
+} from "lucide-react";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -18,78 +26,87 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 // This is sample data.
 const data = {
-  changes: [
+  connections: [
     {
-      file: "README.md",
-      state: "M",
+      name: "Production DB",
+      status: "connected",
     },
     {
-      file: "api/hello/route.ts",
-      state: "U",
-    },
-    {
-      file: "app/layout.tsx",
-      state: "M",
+      name: "Development DB",
+      status: "disconnected",
     },
   ],
-  tree: [
-    [
-      "app",
-      [
-        "api",
-        ["hello", ["route.ts"]],
-        "page.tsx",
-        "layout.tsx",
-        ["blog", ["page.tsx"]],
+  databases: [
+    {
+      name: "ecommerce_db",
+      tables: [
+        {
+          name: "users",
+          columns: ["id", "username", "email", "created_at"],
+        },
+        {
+          name: "products",
+          columns: ["id", "name", "price", "stock"],
+        },
+        {
+          name: "orders",
+          columns: ["id", "user_id", "total", "status"],
+        },
       ],
-    ],
-    [
-      "components",
-      ["ui", "button.tsx", "card.tsx"],
-      "header.tsx",
-      "footer.tsx",
-    ],
-    ["lib", ["util.ts"]],
-    ["public", "favicon.ico", "vercel.svg"],
-    ".eslintrc.json",
-    ".gitignore",
-    "next.config.js",
-    "tailwind.config.js",
-    "package.json",
-    "README.md",
+    },
+    {
+      name: "analytics_db",
+      tables: [
+        {
+          name: "events",
+          columns: ["id", "event_type", "timestamp"],
+        },
+        {
+          name: "metrics",
+          columns: ["id", "name", "value", "date"],
+        },
+      ],
+    },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Changes</SidebarGroupLabel>
+          <SidebarGroupLabel>Connections</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.changes.map((item, index) => (
+              {data.connections.map((item, index) => (
                 <SidebarMenuItem key={index}>
                   <SidebarMenuButton>
-                    <File />
-                    {item.file}
+                    <Cloud />
+                    {item.name}
                   </SidebarMenuButton>
-                  <SidebarMenuBadge>{item.state}</SidebarMenuBadge>
+                  <SidebarMenuBadge>
+                    {item.status === "connected" && (
+                      <PlugZap className="h-4 w-4 text-green-500" />
+                    )}
+                    {item.status === "disconnected" && (
+                      <Unplug className="h-4 w-4 text-red-500" />
+                    )}
+                  </SidebarMenuBadge>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Files</SidebarGroupLabel>
+          <SidebarGroupLabel>Databases</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.tree.map((item, index) => (
-                <Tree key={index} item={item} />
+              {data.databases.map((database, index) => (
+                <DatabaseTree key={index} database={database} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -97,45 +114,67 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
 
-function Tree({ item }: { item: string | any[] }) {
-  const [name, ...items] = Array.isArray(item) ? item : [item]
+interface Database {
+  name: string;
+  tables: Table[];
+}
 
-  if (!items.length) {
-    return (
-      <SidebarMenuButton
-        isActive={name === "button.tsx"}
-        className="data-[active=true]:bg-transparent"
-      >
-        <File />
-        {name}
-      </SidebarMenuButton>
-    )
-  }
+interface Table {
+  name: string;
+  columns: string[];
+}
 
+function DatabaseTree({ database }: { database: Database }) {
   return (
     <SidebarMenuItem>
       <Collapsible
         className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
-        defaultOpen={name === "components" || name === "ui"}
+        defaultOpen={true}
       >
         <CollapsibleTrigger asChild>
           <SidebarMenuButton>
             <ChevronRight className="transition-transform" />
-            <Folder />
-            {name}
+            <Database className="h-4 w-4" />
+            {database.name}
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {items.map((subItem, index) => (
-              <Tree key={index} item={subItem} />
+            {database.tables.map((table, index) => (
+              <TableTree key={index} table={table} />
             ))}
           </SidebarMenuSub>
         </CollapsibleContent>
       </Collapsible>
     </SidebarMenuItem>
-  )
+  );
+}
+
+function TableTree({ table }: { table: Table }) {
+  return (
+    <SidebarMenuItem>
+      <Collapsible className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90">
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton>
+            <ChevronRight className="transition-transform" />
+            <Table className="h-4 w-4" />
+            {table.name}
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {table.columns.map((column, index) => (
+              <SidebarMenuButton key={index}>
+                <Columns className="h-4 w-4" />
+                {column}
+              </SidebarMenuButton>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
+    </SidebarMenuItem>
+  );
 }
