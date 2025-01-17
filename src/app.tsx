@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Database, Download, Timer } from "lucide-react";
 import "./index.css";
+import { QueryEditor } from "./components/query-editor";
 
 const results = {
   columns: ["id", "username", "email", "created_at"],
@@ -79,7 +80,10 @@ export default function App() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="h-[40vh] rounded-xl border bg-card p-4">
-            <pre className="text-sm">SELECT * FROM users LIMIT 10;</pre>
+            <QueryEditor
+              onChange={(value) => console.log("Query changed:", value)}
+              onExecute={(value) => console.log("Executing:", value)}
+            />
           </div>
           <div className="flex-1 rounded-xl border bg-card">
             <div className="flex items-center justify-between border-b p-2">
