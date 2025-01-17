@@ -92,25 +92,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <ConnectionSwitcher
-          teams={[
-            {
-              name: "Acme Inc",
-              logo: GalleryVerticalEnd,
-              plan: "Enterprise",
-            },
-            {
-              name: "Acme Corp.",
-              logo: AudioWaveform,
-              plan: "Startup",
-            },
-            {
-              name: "Evil Corp.",
-              logo: Command,
-              plan: "Free",
-            },
-          ]}
-        />
+        <ConnectionSwitcher />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
