@@ -16,15 +16,7 @@ import {
   SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import {
-  AudioWaveform,
-  ChevronRight,
-  Columns,
-  Command,
-  Database,
-  GalleryVerticalEnd,
-  Table,
-} from "lucide-react";
+import { ChevronRight, Columns, Database, Table } from "lucide-react";
 import * as React from "react";
 import { ConnectionSwitcher } from "./connection-switcher";
 

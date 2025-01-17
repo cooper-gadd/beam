@@ -1,15 +1,5 @@
 "use client";
 
-import * as React from "react";
-import {
-  ChevronsUpDown,
-  Cloud,
-  PlugZap,
-  Plus,
-  TestTube,
-  Unplug,
-} from "lucide-react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +15,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  ChevronsUpDown,
+  Cloud,
+  PlugZap,
+  Plus,
+  TestTube,
+  Unplug,
+} from "lucide-react";
+import * as React from "react";
 
 const connections = [
   {
@@ -79,7 +78,7 @@ export function ConnectionSwitcher() {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Connections
             </DropdownMenuLabel>
-            {connections.map((connection, index: number) => (
+            {connections.map((connection) => (
               <DropdownMenuItem
                 key={connection.name}
                 onClick={() => setActiveConnection(connection)}
