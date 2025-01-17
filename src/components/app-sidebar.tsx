@@ -6,6 +6,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,8 +16,17 @@ import {
   SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { ChevronRight, Columns, Database, Table } from "lucide-react";
+import {
+  AudioWaveform,
+  ChevronRight,
+  Columns,
+  Command,
+  Database,
+  GalleryVerticalEnd,
+  Table,
+} from "lucide-react";
 import * as React from "react";
+import { ConnectionSwitcher } from "./connection-switcher";
 
 const data = {
   schemas: [
@@ -81,6 +91,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <ConnectionSwitcher
+          teams={[
+            {
+              name: "Acme Inc",
+              logo: GalleryVerticalEnd,
+              plan: "Enterprise",
+            },
+            {
+              name: "Acme Corp.",
+              logo: AudioWaveform,
+              plan: "Startup",
+            },
+            {
+              name: "Evil Corp.",
+              logo: Command,
+              plan: "Free",
+            },
+          ]}
+        />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
