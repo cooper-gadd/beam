@@ -18,11 +18,11 @@ import {
   Cloud,
   DatabaseZap,
   PlugZap,
-  Plus,
   TestTube,
   Unplug,
 } from "lucide-react";
 import * as React from "react";
+import { NewConnectionDialog } from "./new-connection";
 
 const connections = [
   // Can be empty array when no connections exist
@@ -119,14 +119,7 @@ export function ConnectionSwitcher() {
               </DropdownMenuItem>
             )}
 
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
-              </div>
-              <div className="font-medium text-muted-foreground">
-                Add connection
-              </div>
-            </DropdownMenuItem>
+            <NewConnectionDialog />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
