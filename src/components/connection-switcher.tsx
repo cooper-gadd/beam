@@ -18,6 +18,7 @@ import {
 import {
   ChevronsUpDown,
   Cloud,
+  DatabaseZap,
   PlugZap,
   Plus,
   TestTube,
@@ -26,6 +27,7 @@ import {
 import * as React from "react";
 
 const connections = [
+  // Can be empty array when no connections exist
   {
     name: "Production DB",
     status: "connected",
@@ -41,8 +43,10 @@ const connections = [
 export function ConnectionSwitcher() {
   const { isMobile } = useSidebar();
   const [activeConnection, setActiveConnection] = React.useState(
-    connections[0],
+    connections.length > 0 ? connections[0] : null,
   );
+
+  const hasConnections = connections.length > 0;
 
   return (
     <SidebarMenu>
@@ -54,16 +58,21 @@ export function ConnectionSwitcher() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
-                {activeConnection && (
+                {activeConnection ? (
                   <activeConnection.logo className="size-4" />
+                ) : (
+                  <DatabaseZap className="size-4 text-muted-foreground" />
                 )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeConnection?.name}
+                  {activeConnection ? activeConnection.name : "No Connection"}
                 </span>
-                <span className="truncate text-xs">
-                  {activeConnection?.status}
+                <span className="truncate text-xs text-muted-foreground">
+                  {activeConnection
+                    ? activeConnection.status.charAt(0).toUpperCase() +
+                      activeConnection.status.slice(1)
+                    : "Click to connect"}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -76,29 +85,42 @@ export function ConnectionSwitcher() {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Connections
+              {hasConnections ? "Connections" : "No Connections"}
             </DropdownMenuLabel>
-            {connections.map((connection) => (
+
+            {hasConnections ? (
+              <>
+                {connections.map((connection) => (
+                  <DropdownMenuItem
+                    key={connection.name}
+                    onClick={() => setActiveConnection(connection)}
+                    className="gap-2 p-2"
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                      <connection.logo className="size-4 shrink-0" />
+                    </div>
+                    {connection.name}
+                    <DropdownMenuShortcut>
+                      {connection.status === "connected" && (
+                        <PlugZap className="h-4 w-4 text-green-500" />
+                      )}
+                      {connection.status === "disconnected" && (
+                        <Unplug className="h-4 w-4 text-red-500" />
+                      )}
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+              </>
+            ) : (
               <DropdownMenuItem
-                key={connection.name}
-                onClick={() => setActiveConnection(connection)}
-                className="gap-2 p-2"
+                className="text-sm text-muted-foreground"
+                disabled
               >
-                <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <connection.logo className="size-4 shrink-0" />
-                </div>
-                {connection.name}
-                <DropdownMenuShortcut>
-                  {connection.status === "connected" && (
-                    <PlugZap className="h-4 w-4 text-green-500" />
-                  )}
-                  {connection.status === "disconnected" && (
-                    <Unplug className="h-4 w-4 text-red-500" />
-                  )}
-                </DropdownMenuShortcut>
+                No connections available
               </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
+            )}
+
             <DropdownMenuItem className="gap-2 p-2">
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                 <Plus className="size-4" />
