@@ -10,37 +10,18 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import {
-  ChevronRight,
-  Cloud,
-  Columns,
-  Database,
-  PlugZap,
-  Table,
-  Unplug,
-} from "lucide-react";
+import { ChevronRight, Columns, Database, Table } from "lucide-react";
 import * as React from "react";
 
 const data = {
-  connections: [
+  schemas: [
     {
-      name: "Production DB",
-      status: "connected",
-    },
-    {
-      name: "Development DB",
-      status: "disconnected",
-    },
-  ],
-  databases: [
-    {
-      name: "ecommerce_db",
+      name: "public",
       tables: [
         {
           name: "users",
@@ -57,15 +38,28 @@ const data = {
       ],
     },
     {
-      name: "analytics_db",
+      name: "sys",
       tables: [
         {
-          name: "events",
-          columns: ["id", "event_type", "timestamp"],
+          name: "pg_stat_activity",
+          columns: ["pid", "usename", "query", "state"],
         },
         {
-          name: "metrics",
-          columns: ["id", "name", "value", "date"],
+          name: "pg_tables",
+          columns: ["schemaname", "tablename", "tableowner"],
+        },
+      ],
+    },
+    {
+      name: "auth",
+      tables: [
+        {
+          name: "users",
+          columns: ["id", "role", "permissions"],
+        },
+        {
+          name: "sessions",
+          columns: ["id", "user_id", "expires_at"],
         },
       ],
     },
@@ -77,34 +71,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar {...props}>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Connections</SidebarGroupLabel>
+          <SidebarGroupLabel>Schemas</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.connections.map((item, index) => (
-                <SidebarMenuItem key={index}>
-                  <SidebarMenuButton>
-                    <Cloud />
-                    {item.name}
-                  </SidebarMenuButton>
-                  <SidebarMenuBadge>
-                    {item.status === "connected" && (
-                      <PlugZap className="h-4 w-4 text-green-500" />
-                    )}
-                    {item.status === "disconnected" && (
-                      <Unplug className="h-4 w-4 text-red-500" />
-                    )}
-                  </SidebarMenuBadge>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Databases</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {data.databases.map((database, index) => (
-                <DatabaseTree key={index} database={database} />
+              {data.schemas.map((schema, index) => (
+                <SchemaTree key={index} schema={schema} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -115,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   );
 }
 
-interface Database {
+interface Schema {
   name: string;
   tables: Table[];
 }
@@ -125,23 +96,23 @@ interface Table {
   columns: string[];
 }
 
-function DatabaseTree({ database }: { database: Database }) {
+function SchemaTree({ schema }: { schema: Schema }) {
   return (
     <SidebarMenuItem>
       <Collapsible
         className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
-        defaultOpen={true}
+        defaultOpen={schema.name === "public"}
       >
         <CollapsibleTrigger asChild>
           <SidebarMenuButton>
             <ChevronRight className="transition-transform" />
             <Database className="h-4 w-4" />
-            {database.name}
+            {schema.name}
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {database.tables.map((table, index) => (
+            {schema.tables.map((table, index) => (
               <TableTree key={index} table={table} />
             ))}
           </SidebarMenuSub>
