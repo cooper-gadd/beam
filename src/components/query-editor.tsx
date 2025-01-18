@@ -8,59 +8,181 @@ interface QueryEditorProps {
   defaultValue?: string;
 }
 
-// SQL keywords we want to highlight
-const keywords = [
-  "SELECT",
-  "FROM",
-  "WHERE",
-  "AND",
-  "OR",
-  "INSERT",
-  "UPDATE",
-  "DELETE",
-  "DROP",
-  "CREATE",
-  "TABLE",
-  "DATABASE",
-  "LIMIT",
-  "OFFSET",
-  "JOIN",
-  "LEFT",
-  "RIGHT",
-  "INNER",
-  "OUTER",
-  "GROUP BY",
-  "ORDER BY",
-  "DESC",
-  "ASC",
-  "HAVING",
-  "AS",
-];
+// SQL keywords grouped by category
+const sqlKeywords = {
+  // Data Query Keywords (SELECT, FROM, WHERE, etc.)
+  queryKeywords: [
+    "SELECT",
+    "FROM",
+    "WHERE",
+    "HAVING",
+    "GROUP BY",
+    "ORDER BY",
+    "LIMIT",
+    "OFFSET",
+    "JOIN",
+    "INNER JOIN",
+    "LEFT JOIN",
+    "RIGHT JOIN",
+    "FULL JOIN",
+    "CROSS JOIN",
+    "ON",
+    "AS",
+    "WITH",
+    "UNION",
+    "ALL",
+    "DISTINCT",
+    "CASE",
+    "WHEN",
+    "THEN",
+    "ELSE",
+    "END",
+    "BETWEEN",
+    "IN",
+    "EXISTS",
+    "ANY",
+    "SOME",
+    "ALL",
+  ],
 
-function highlightSyntax(code: string) {
-  // Create a wrapper div for the highlighted content
-  let html = code;
+  // Data Manipulation Keywords (INSERT, UPDATE, DELETE, etc.)
+  modificationKeywords: [
+    "INSERT",
+    "UPDATE",
+    "DELETE",
+    "INTO",
+    "VALUES",
+    "SET",
+    "MERGE",
+    "RETURNING",
+    "DEFAULT",
+  ],
 
-  // Highlight strings (both single and double quotes)
-  html = html.replace(/(["'])(.*?)\1/g, '<span class="text-accent">$&</span>');
+  // Data Definition Keywords (CREATE, ALTER, DROP, etc.)
+  definitionKeywords: [
+    "CREATE",
+    "ALTER",
+    "DROP",
+    "TABLE",
+    "VIEW",
+    "INDEX",
+    "SEQUENCE",
+    "TRIGGER",
+    "PROCEDURE",
+    "FUNCTION",
+    "DATABASE",
+    "SCHEMA",
+    "COLUMN",
+    "CONSTRAINT",
+    "PRIMARY KEY",
+    "FOREIGN KEY",
+    "REFERENCES",
+    "UNIQUE",
+    "CHECK",
+    "NOT NULL",
+  ],
 
-  // Highlight numbers
-  html = html.replace(/\b(\d+)\b/g, '<span class="text-secondary">$1</span>');
+  // Logical Operators and Functions
+  operatorsAndFunctions: [
+    "AND",
+    "OR",
+    "NOT",
+    "IS",
+    "NULL",
+    "LIKE",
+    "ILIKE",
+    "SIMILAR TO",
+    "COUNT",
+    "SUM",
+    "AVG",
+    "MIN",
+    "MAX",
+    "COALESCE",
+    "NULLIF",
+    "EXTRACT",
+    "NOW",
+    "CAST",
+    "TO",
+  ],
 
-  // Highlight keywords
-  const keywordPattern = new RegExp(`\\b(${keywords.join("|")})\\b`, "gi");
-  html = html.replace(
-    keywordPattern,
-    '<span class="text-primary font-bold">$&</span>',
-  );
+  // Transaction Control
+  transactionKeywords: [
+    "BEGIN",
+    "COMMIT",
+    "ROLLBACK",
+    "TRANSACTION",
+    "SAVEPOINT",
+    "SET TRANSACTION",
+    "ISOLATION LEVEL",
+  ],
+};
 
-  // Highlight comments
-  html = html.replace(
-    /--(.*?)$/gm,
-    '<span class="text-muted-foreground italic">$&</span>',
-  );
+function highlightSyntax(text: string) {
+  let result = text;
+  const patterns = [
+    // Strings (single and double quotes)
+    {
+      pattern: /(["'])(.*?)\1/g,
+      className: "text-chart-1",
+    },
+    // Numbers
+    {
+      pattern: /\b(\d+(\.\d+)?)\b/g,
+      className: "text-chart-2",
+    },
+    // Comments
+    {
+      pattern: /--(.*?)$/gm,
+      className: "text-muted-foreground italic",
+    },
+    // Query Keywords
+    {
+      pattern: new RegExp(
+        `\\b(${sqlKeywords.queryKeywords.join("|")})\\b`,
+        "gi",
+      ),
+      className: "text-chart-1 font-bold",
+    },
+    // Modification Keywords
+    {
+      pattern: new RegExp(
+        `\\b(${sqlKeywords.modificationKeywords.join("|")})\\b`,
+        "gi",
+      ),
+      className: "text-chart-2 font-bold",
+    },
+    // Definition Keywords
+    {
+      pattern: new RegExp(
+        `\\b(${sqlKeywords.definitionKeywords.join("|")})\\b`,
+        "gi",
+      ),
+      className: "text-chart-3 font-bold",
+    },
+    // Operators and Functions
+    {
+      pattern: new RegExp(
+        `\\b(${sqlKeywords.operatorsAndFunctions.join("|")})\\b`,
+        "gi",
+      ),
+      className: "text-chart-4 font-bold",
+    },
+    // Transaction Keywords
+    {
+      pattern: new RegExp(
+        `\\b(${sqlKeywords.transactionKeywords.join("|")})\\b`,
+        "gi",
+      ),
+      className: "text-chart-5 font-bold",
+    },
+  ];
 
-  return html;
+  // Apply all patterns in order
+  patterns.forEach(({ pattern, className }) => {
+    result = result.replace(pattern, `<span class="${className}">$&</span>`);
+  });
+
+  return result;
 }
 
 export function QueryEditor({
@@ -72,13 +194,11 @@ export function QueryEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
 
-  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
     onChange?.(newValue);
 
-    // Update the highlight view
     if (highlightRef.current) {
       highlightRef.current.innerHTML = highlightSyntax(newValue);
     }
