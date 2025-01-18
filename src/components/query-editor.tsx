@@ -118,71 +118,124 @@ const sqlKeywords = {
 };
 
 function highlightSyntax(text: string) {
-  let result = text;
-  const patterns = [
-    // Strings (single and double quotes)
-    {
-      pattern: /(["'])(.*?)\1/g,
-      className: "text-chart-1",
-    },
-    // Numbers
-    {
-      pattern: /\b(\d+(\.\d+)?)\b/g,
-      className: "text-chart-2",
-    },
-    // Comments
-    {
-      pattern: /--(.*?)$/gm,
-      className: "text-muted-foreground italic",
-    },
-    // Query Keywords
-    {
-      pattern: new RegExp(
-        `\\b(${sqlKeywords.queryKeywords.join("|")})\\b`,
-        "gi",
-      ),
-      className: "text-chart-1 font-bold",
-    },
-    // Modification Keywords
-    {
-      pattern: new RegExp(
-        `\\b(${sqlKeywords.modificationKeywords.join("|")})\\b`,
-        "gi",
-      ),
-      className: "text-chart-2 font-bold",
-    },
-    // Definition Keywords
-    {
-      pattern: new RegExp(
-        `\\b(${sqlKeywords.definitionKeywords.join("|")})\\b`,
-        "gi",
-      ),
-      className: "text-chart-3 font-bold",
-    },
-    // Operators and Functions
-    {
-      pattern: new RegExp(
-        `\\b(${sqlKeywords.operatorsAndFunctions.join("|")})\\b`,
-        "gi",
-      ),
-      className: "text-chart-4 font-bold",
-    },
-    // Transaction Keywords
-    {
-      pattern: new RegExp(
-        `\\b(${sqlKeywords.transactionKeywords.join("|")})\\b`,
-        "gi",
-      ),
-      className: "text-chart-5 font-bold",
-    },
-  ];
+  // Split text into lines
+  const lines = text.split("\n");
 
-  // Apply all patterns in order
-  patterns.forEach(({ pattern, className }) => {
-    result = result.replace(pattern, `<span class="${className}">$&</span>`);
+  // Prepare compound keywords (those containing spaces)
+  const compoundKeywords = [
+    ...sqlKeywords.queryKeywords,
+    ...sqlKeywords.modificationKeywords,
+    ...sqlKeywords.definitionKeywords,
+    ...sqlKeywords.operatorsAndFunctions,
+    ...sqlKeywords.transactionKeywords,
+  ].filter((keyword) => keyword.includes(" "));
+
+  // Process each line
+  const processedLines = lines.map((line) => {
+    // Check if line is a comment
+    if (line.trim().startsWith("--")) {
+      return `<span class="text-muted-foreground italic">${line}</span>`;
+    }
+
+    // Process strings, keeping track of quote positions
+    const stringPositions: { start: number; end: number }[] = [];
+    const stringRegex = /(["'])(.*?)\1/g;
+    let stringMatch;
+    while ((stringMatch = stringRegex.exec(line)) !== null) {
+      stringPositions.push({
+        start: stringMatch.index,
+        end: stringMatch.index + stringMatch[0].length,
+      });
+    }
+
+    // Function to check if position is within a string
+    const isInString = (position: number) => {
+      return stringPositions.some(
+        ({ start, end }) => position >= start && position < end,
+      );
+    };
+
+    // First, handle strings
+    let processedLine = line;
+    stringPositions.forEach(({ start, end }) => {
+      const str = line.substring(start, end);
+      processedLine =
+        processedLine.slice(0, start) +
+        `<span class="text-chart-1">${str}</span>` +
+        processedLine.slice(end);
+    });
+
+    // Handle compound keywords first
+    compoundKeywords.forEach((keyword) => {
+      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
+      processedLine = processedLine.replace(regex, (match) => {
+        if (!isInString(processedLine.indexOf(match))) {
+          if (sqlKeywords.queryKeywords.includes(keyword.toUpperCase())) {
+            return `<span class="text-chart-1 font-bold">${match}</span>`;
+          }
+          if (
+            sqlKeywords.modificationKeywords.includes(keyword.toUpperCase())
+          ) {
+            return `<span class="text-chart-2 font-bold">${match}</span>`;
+          }
+          if (sqlKeywords.definitionKeywords.includes(keyword.toUpperCase())) {
+            return `<span class="text-chart-3 font-bold">${match}</span>`;
+          }
+          if (
+            sqlKeywords.operatorsAndFunctions.includes(keyword.toUpperCase())
+          ) {
+            return `<span class="text-chart-4 font-bold">${match}</span>`;
+          }
+          if (sqlKeywords.transactionKeywords.includes(keyword.toUpperCase())) {
+            return `<span class="text-chart-5 font-bold">${match}</span>`;
+          }
+        }
+        return match;
+      });
+    });
+
+    // Split line into words while preserving spaces
+    const words = processedLine.split(/(\s+)/);
+
+    // Process each word
+    const processedWords = words.map((word) => {
+      // Skip empty strings and whitespace
+      if (!word.trim()) return word;
+
+      // Skip if word is within a string
+      if (isInString(line.indexOf(word))) return word;
+
+      // Check for numbers
+      if (/^\d+(\.\d+)?$/.test(word)) {
+        return `<span class="text-chart-2">${word}</span>`;
+      }
+
+      // Check against SQL keywords
+      const upperWord = word.toUpperCase();
+
+      if (sqlKeywords.queryKeywords.includes(upperWord)) {
+        return `<span class="text-chart-1 font-bold">${word}</span>`;
+      }
+      if (sqlKeywords.modificationKeywords.includes(upperWord)) {
+        return `<span class="text-chart-2 font-bold">${word}</span>`;
+      }
+      if (sqlKeywords.definitionKeywords.includes(upperWord)) {
+        return `<span class="text-chart-3 font-bold">${word}</span>`;
+      }
+      if (sqlKeywords.operatorsAndFunctions.includes(upperWord)) {
+        return `<span class="text-chart-4 font-bold">${word}</span>`;
+      }
+      if (sqlKeywords.transactionKeywords.includes(upperWord)) {
+        return `<span class="text-chart-5 font-bold">${word}</span>`;
+      }
+
+      return word;
+    });
+
+    return processedWords.join("");
   });
 
-  return result;
+  return processedLines.join("\n");
 }
 
 export function QueryEditor({
