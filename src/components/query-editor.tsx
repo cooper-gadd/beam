@@ -235,7 +235,17 @@ function highlightSyntax(text: string) {
     return processedWords.join("");
   });
 
-  return processedLines.join("\n");
+  // Add line numbers and wrap each line in a div
+  const numberedLines = processedLines.map((line, index) => {
+    return `<div class="editor-line">
+      <span class="line-number text-muted-foreground select-none" data-line="${
+        index + 1
+      }">${index + 1}</span>
+      <span class="line-content">${line}</span>
+    </div>`;
+  });
+
+  return numberedLines.join("");
 }
 
 export function QueryEditor({
@@ -288,7 +298,7 @@ export function QueryEditor({
       <div className="relative flex-1">
         <pre
           ref={highlightRef}
-          className="absolute h-full w-full overflow-hidden whitespace-pre-wrap break-words p-4 font-mono text-sm"
+          className="absolute h-full w-full overflow-hidden whitespace-pre-wrap break-words p-4 font-mono text-sm [&_.editor-line]:flex [&_.editor-line]:gap-4 [&_.line-content]:flex-1 [&_.line-number]:mr-2 [&_.line-number]:w-5 [&_.line-number]:text-right"
           aria-hidden="true"
           dangerouslySetInnerHTML={{ __html: highlightSyntax(value) }}
         />
@@ -296,7 +306,7 @@ export function QueryEditor({
           ref={textareaRef}
           value={value}
           onChange={handleChange}
-          className="absolute h-full w-full resize-none bg-transparent p-4 font-mono text-sm text-transparent caret-foreground focus:outline-none"
+          className="absolute h-full w-full resize-none bg-transparent p-4 pl-[3.5rem] font-mono text-sm text-transparent caret-foreground focus:outline-none"
           spellCheck={false}
           placeholder="Write your SQL query here..."
         />
