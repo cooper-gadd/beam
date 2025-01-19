@@ -33,11 +33,13 @@ export function QueryResults() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter rows based on search term
-  const filteredRows = results.rows.filter((row) =>
-    Object.values(row).some((value) =>
-      value!.toString().toLowerCase().includes(searchTerm.toLowerCase()),
-    ),
-  );
+  const filteredRows = results.rows?.length
+    ? results.rows.filter((row) =>
+        Object.values(row).some((value) =>
+          value!.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+        ),
+      )
+    : [];
 
   return (
     <div className="flex h-full flex-col rounded-xl bg-card">
