@@ -43,12 +43,12 @@ export function QueryResults() {
 
   return (
     <div className="flex h-full flex-col rounded-xl bg-card">
-      <div className="flex items-center justify-between border-b p-4">
+      <div className="flex items-center justify-between border-b pb-4">
         <div className="relative flex w-full max-w-md items-center">
           <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search in results..."
+            placeholder="Search your sql..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
