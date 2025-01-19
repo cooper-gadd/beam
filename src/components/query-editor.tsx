@@ -248,12 +248,8 @@ function highlightSyntax(text: string) {
   return numberedLines.join("");
 }
 
-export function QueryEditor({
-  onChange,
-  onExecute,
-  defaultValue = "SELECT * FROM users LIMIT 10;",
-}: QueryEditorProps) {
-  const [value, setValue] = useState(defaultValue);
+export function QueryEditor({ onChange, onExecute }: QueryEditorProps) {
+  const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
 
@@ -308,7 +304,7 @@ export function QueryEditor({
           onChange={handleChange}
           className="absolute h-full w-full resize-none bg-transparent p-4 pl-[3.8rem] font-mono text-sm text-transparent caret-foreground focus:outline-none"
           spellCheck={false}
-          placeholder="Write your SQL query here..."
+          placeholder="Your SQL goes here..."
         />
       </div>
     </div>
