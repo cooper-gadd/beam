@@ -285,7 +285,7 @@ export function QueryEditor({
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex items-center justify-between px-2">
-        <span className="text-sm text-muted-foreground">Query Editor</span>
+        <span className="text-sm text-muted-foreground">SQL</span>
         <Button
           variant="ghost"
           size="icon"
