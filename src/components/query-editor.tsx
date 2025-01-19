@@ -306,7 +306,7 @@ export function QueryEditor({
           ref={textareaRef}
           value={value}
           onChange={handleChange}
-          className="absolute h-full w-full resize-none bg-transparent p-4 pl-[3.5rem] font-mono text-sm text-transparent caret-foreground focus:outline-none"
+          className="absolute h-full w-full resize-none bg-transparent p-4 pl-[3.8rem] font-mono text-sm text-transparent caret-foreground focus:outline-none"
           spellCheck={false}
           placeholder="Write your SQL query here..."
         />
