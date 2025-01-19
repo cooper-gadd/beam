@@ -61,9 +61,7 @@ export function QueryResults() {
           </div>
           <div className="flex items-center gap-1.5">
             <span>•</span>
-            <span>
-              {filteredRows.length} of {results.metadata.rowCount} rows
-            </span>
+            <span>{filteredRows.length} rows</span>
           </div>
         </div>
       </div>
