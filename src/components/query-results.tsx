@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -6,7 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Timer } from "lucide-react";
+import { Timer, Search } from "lucide-react";
+import { Input } from "./ui/input";
 
 // Helper function to generate fake data
 const generateRows = (count: number) => {
@@ -20,23 +22,45 @@ const generateRows = (count: number) => {
 
 const results = {
   columns: ["id", "username", "email", "created_at"],
-  rows: generateRows(1000), // Generate 100 rows - change this number as needed
+  rows: generateRows(1000),
   metadata: {
-    rowCount: 1000, // Update this to match the number of rows
+    rowCount: 1000,
     executionTime: "123ms",
   },
 };
 
 export function QueryResults() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter rows based on search term
+  const filteredRows = results.rows.filter((row) =>
+    Object.values(row).some((value) =>
+      value!.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
+  );
+
   return (
     <div className="flex h-full flex-col rounded-xl bg-card">
-      <div className="flex items-center justify-between border-b p-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Timer className="h-4 w-4" />
-          <span>{results.metadata.executionTime}</span>
+      <div className="flex items-center justify-between border-b p-4">
+        <div className="relative flex w-full max-w-md items-center">
+          <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search in results..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
         </div>
-        <div className="text-sm text-muted-foreground">
-          {results.metadata.rowCount} rows
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Timer className="h-4 w-4" />
+            <span>{results.metadata.executionTime}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span>•</span>
+            <span>{results.metadata.rowCount} rows</span>
+          </div>
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-auto">
@@ -54,7 +78,7 @@ export function QueryResults() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results.rows.map((row, i) => (
+            {filteredRows.map((row, i) => (
               <TableRow key={i} className="even:bg-muted">
                 {results.columns.map((column) => (
                   <TableCell
