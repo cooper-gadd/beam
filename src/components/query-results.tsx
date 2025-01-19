@@ -61,39 +61,43 @@ export function QueryResults() {
           </div>
           <div className="flex items-center gap-1.5">
             <span>•</span>
-            <span>{results.metadata.rowCount} rows</span>
+            <span>
+              {filteredRows.length} of {results.metadata.rowCount} rows
+            </span>
           </div>
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-auto">
-        <Table>
-          <TableHeader className="sticky top-0 bg-card">
-            <TableRow className="even:bg-muted hover:bg-transparent">
-              {results.columns.map((column) => (
-                <TableHead
-                  key={column}
-                  className="border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right"
-                >
-                  {column}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredRows.map((row, i) => (
-              <TableRow key={i} className="even:bg-muted">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-b-xl">
+        <div className="h-full overflow-auto">
+          <Table>
+            <TableHeader className="sticky top-0 bg-card">
+              <TableRow className="even:bg-muted hover:bg-transparent">
                 {results.columns.map((column) => (
-                  <TableCell
+                  <TableHead
                     key={column}
-                    className="border px-4 py-2 text-left font-mono [&[align=center]]:text-center [&[align=right]]:text-right"
+                    className="border-b px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right"
                   >
-                    {row[column as keyof typeof row]}
-                  </TableCell>
+                    {column}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredRows.map((row, i) => (
+                <TableRow key={i} className="even:bg-muted">
+                  {results.columns.map((column) => (
+                    <TableCell
+                      key={column}
+                      className="px-4 py-2 text-left font-mono [&[align=center]]:text-center [&[align=right]]:text-right"
+                    >
+                      {row[column as keyof typeof row]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
