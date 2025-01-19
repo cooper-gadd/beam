@@ -10,17 +10,36 @@ import {
 import { Timer, Search } from "lucide-react";
 import { Input } from "./ui/input";
 
+// Define the shape of a row
+interface QueryRow {
+  id: number;
+  username: string;
+  email: string;
+  created_at: string;
+  [key: string]: string | number; // Allow for dynamic columns
+}
+
+// Define the shape of the query results
+interface QueryResults {
+  columns: string[];
+  rows: QueryRow[];
+  metadata: {
+    rowCount: number;
+    executionTime: string;
+  };
+}
+
 // Helper function to generate fake data
-const generateRows = (count: number) => {
+const generateRows = (count: number): QueryRow[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     username: `user_${i + 1}`,
     email: `user${i + 1}@example.com`,
-    created_at: new Date(2024, 0, i + 1).toISOString().split("T")[0],
+    created_at: new Date(2024, 0, i + 1).toISOString().split("T")[0] || "",
   }));
 };
 
-const results = {
+const results: QueryResults = {
   columns: ["id", "username", "email", "created_at"],
   rows: generateRows(1000),
   metadata: {
@@ -33,13 +52,13 @@ export function QueryResults() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter rows based on search term
-  const filteredRows = results.rows?.length
-    ? results.rows.filter((row) =>
-        Object.values(row).some((value) =>
-          value!.toString().toLowerCase().includes(searchTerm.toLowerCase()),
-        ),
-      )
-    : [];
+  const filteredRows = results.rows?.filter((row) =>
+    Object.values(row).some((value) =>
+      value.toString().toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
+  );
+
+  const hasResults = filteredRows && filteredRows.length > 0;
 
   return (
     <div className="flex h-full flex-col rounded-xl bg-card">
@@ -67,34 +86,40 @@ export function QueryResults() {
       </div>
       <div className="min-h-0 flex-1 overflow-hidden rounded-b-xl">
         <div className="h-full overflow-auto">
-          <Table>
-            <TableHeader className="sticky top-0 bg-card">
-              <TableRow className="even:bg-muted hover:bg-transparent">
-                {results.columns.map((column) => (
-                  <TableHead
-                    key={column}
-                    className="border-b px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right"
-                  >
-                    {column}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRows.map((row, i) => (
-                <TableRow key={i} className="even:bg-muted">
+          {!hasResults ? (
+            <div className="flex h-full items-center justify-center text-muted-foreground">
+              Write good sql to find something.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader className="sticky top-0 bg-card">
+                <TableRow className="even:bg-muted hover:bg-transparent">
                   {results.columns.map((column) => (
-                    <TableCell
+                    <TableHead
                       key={column}
-                      className="px-4 py-2 text-left font-mono [&[align=center]]:text-center [&[align=right]]:text-right"
+                      className="border-b px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right"
                     >
-                      {row[column as keyof typeof row]}
-                    </TableCell>
+                      {column}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredRows.map((row, i) => (
+                  <TableRow key={i} className="even:bg-muted">
+                    {results.columns.map((column) => (
+                      <TableCell
+                        key={column}
+                        className="px-4 py-2 text-left font-mono [&[align=center]]:text-center [&[align=right]]:text-right"
+                      >
+                        {row[column]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </div>
     </div>
